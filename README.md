@@ -1,22 +1,7 @@
 ScrapyAutoDb
 ======
-
 Storing items to database
 
-Features
-======
-Automatically update existed records and log create date and modify date.
-
-Example
--------
-        class myItem(scrapy.Item):
-            name = scrapy.Field()
-            phone_num = scrapy.Field()
-
-            class Meta:
-                indexes = (
-                    (('name','phone_num'), True),
-                )
 How to use
 ======
 	1. Install scrapyautodb.
@@ -31,7 +16,21 @@ How to use
 	    ITEM_PIPELINES = {
 	    	'scrapyautodb.pipelines.AutoDBPipeline': 100,
        }
+Features
+======
+Automatically update existed records and log create date and modify date.
 
+Example
+-------
+        class myItem(scrapy.Item):
+            name = scrapy.Field()
+            phone_num = scrapy.Field()
+            email = scrapy.Field()
+
+            class Meta:
+                indexes = (
+                    (('name','phone_num'), True),
+                )
 Advance
 =======
 Supported Multiple Database Engines:

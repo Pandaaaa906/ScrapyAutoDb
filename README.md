@@ -1,7 +1,7 @@
 ScrapyAutoDb
 ======
 
-Storing items to database using peewee
+Storing items to database
 
 Features
 ======

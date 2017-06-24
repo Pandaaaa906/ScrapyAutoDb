@@ -61,3 +61,4 @@ class AutoDBPipeline(object):
             except peewee.IntegrityError as e:
                 print(e)
             return instance
+

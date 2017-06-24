@@ -8,7 +8,7 @@ setup(
     license='MIT License',
     url='https://github.com/Pandaaaa906/ScrapyAutoDb',
     author='Pandaaaa906',
-    author_email='geekluca@qq.com',
+    author_email='ye.pandaaaa906@gmail.com',
     packages=find_packages(),
     include_package_data=True,
     platforms='any',

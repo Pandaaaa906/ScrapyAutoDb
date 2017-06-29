@@ -40,7 +40,7 @@ class ItemMeta(scrapy.item.ItemMeta):
 
     def _key(cls, attr):
         field = getattr(cls, attr)
-        if hasattr(field,"count"):
+        if hasattr(field, "count"):
             return field.count
         else:
             raise AttributeError("Field Type is wrong")

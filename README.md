@@ -21,10 +21,12 @@ How to use
        }
 Features
 ======
-Automatically update existed records and log create date and modify date.
+1. Automatically update existed records and log create date and modify date.
+2. Support Ordered Item.
 
-Example
--------
+Example 1
+---------
+        # project/spiders/items.py
         class myItem(scrapy.Item):
             name = scrapy.Field()
             phone_num = scrapy.Field()
@@ -34,6 +36,20 @@ Example
                 indexes = (
                     (('name','phone_num'), True),
                 )
+
+Example 2
+---------
+        # project/spiders/items.py
+        from scrapyautodb import OrderedItem,Field
+
+        class myItem(Item):
+            # Don't use scrapy.Field or the magic won't work
+            name = Field()
+            phone_num = Field()
+            email = Field()
+            ...
+
+
 Advance
 =======
 Supported Multiple Database Engines:

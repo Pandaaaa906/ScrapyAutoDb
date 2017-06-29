@@ -18,12 +18,8 @@ class AutoDBPipeline(object):
         for t_item in self.l_items:
             item = getattr(items, t_item)
             meta = getattr(item, 'Meta', type("Meta", (), {}))
-            instance = item()
             meta.database = self.db
             l_field_names = item.fields
-            print "ASD", l_field_names
-            print instance.fields
-            print item
             model = type(t_item, (peewee.Model,), {"Meta": meta})
             for field_name, d in l_field_names.items():
                 print field_name, d

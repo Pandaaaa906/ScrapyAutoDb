@@ -22,7 +22,6 @@ class AutoDBPipeline(object):
             l_field_names = item.fields
             model = type(t_item, (peewee.Model,), {"Meta": meta})
             for field_name, d in l_field_names.items():
-                print field_name, d
                 peewee.TextField(null=True, **d).add_to_class(model, field_name)
             peewee.DateTimeField(default=datetime.datetime.now).add_to_class(model, "create_date")
             peewee.DateTimeField(default=datetime.datetime.now).add_to_class(model, "modify_date")

@@ -22,9 +22,9 @@ class AutoDBPipeline(object):
             l_field_names = item.fields
             model = type(t_item, (peewee.Model,), {"Meta": meta})
             for field_name, d in l_field_names.items():
-                peewee.TextField(null=True, **d).add_to_class(model, field_name)
-            peewee.DateTimeField(default=datetime.datetime.now).add_to_class(model, "create_date")
-            peewee.DateTimeField(default=datetime.datetime.now).add_to_class(model, "modify_date")
+                model._meta.add_field(field_name, peewee.TextField(null=True, **d))
+            model._meta.add_field("create_date", peewee.DateTimeField(default=datetime.datetime.now))
+            model._meta.add_field("modify_date", peewee.DateTimeField(default=datetime.datetime.now))
             self.l_models[t_item] = model
         self.db.create_tables(self.l_models.values(), safe=True)
 

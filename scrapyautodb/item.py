@@ -12,7 +12,7 @@ class Field(dict):
 
     def __init__(self, *args, **kwargs):
         super(Field, self).__init__(*args, **kwargs)
-        self.count = Field._counter.next()
+        self.count = next(Field._counter)
 
 
 class ItemMeta(scrapy.item.ItemMeta):

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scrapyautodb',
-    version='0.0.2',
+    version='0.0.3',
     keywords='scrapy peewee sqlite postgresql mysql',
     description='Export items to database using peewee',
     license='MIT License',
@@ -12,5 +12,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=["peewee"],
+    install_requires=["peewee", "twisted", ],
 )

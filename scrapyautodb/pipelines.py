@@ -72,7 +72,7 @@ class AutoDBPipeline(object):
 
         d = dict(item)
         d["modify_date"] = datetime.now()
-        sql = model.insert(**d).on_conflict(conflict_target=constraints, preserve=list(d)).sql()
+        sql = model.insert(**d).on_conflict(conflict_target=constraints, preserve=tuple(d)).sql()
         self.bulk.append(sql)
         if len(self.bulk) > self.max_bulk_size:
             self._insert_db()

@@ -99,6 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
-.idea/
+
 setup.bat
-refresh.bat
+/.idea/

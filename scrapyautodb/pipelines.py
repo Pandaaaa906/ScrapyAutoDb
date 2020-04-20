@@ -6,9 +6,11 @@ import peewee
 from scrapy.item import ItemMeta
 import logging
 
+from twisted.enterprise import adbapi
+
 
 class AutoDBPipeline(object):
-    def __init__(self, project, db_settings, max_bulk_size):
+    def __init__(self, project, db_settings):
         # self.settings = get_project_settings()
         self.db_settings = db_settings
         self.project = project
@@ -16,15 +18,12 @@ class AutoDBPipeline(object):
         self.l_items = [x for x in dir(self.items) if isinstance(getattr(self.items, x), ItemMeta)]
         self.l_models = dict()
         self.d_constraints = dict()
-        self.bulk = []
-        self.max_bulk_size = max_bulk_size
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
             project=crawler.settings.get('BOT_NAME'),
             db_settings=crawler.settings.get('DATABASE'),
-            max_bulk_size=crawler.settings.get('MAX_BULK_SIZE', 200)
         )
 
     def _connect_db(self):
@@ -33,13 +32,17 @@ class AutoDBPipeline(object):
         db_params = self.db_settings.get("params")
         db_engine = self.db_settings.get("engine")
         if db_engine.lower() == "sqlite":
+            adapter = self.db_settings.get("adapter", "sqlite3")
             self.db = peewee.SqliteDatabase(**db_params)
         elif db_engine.lower() == "mysql":
+            adapter = self.db_settings.get("adapter", "pymysql")
             self.db = peewee.MySQLDatabase(**db_params)
         elif db_engine.lower() == "postgresql":
+            adapter = self.db_settings.get("adapter", "psycopg2")
             self.db = peewee.PostgresqlDatabase(**db_params)
         else:
             raise ValueError("DATABASE engine is not supported")
+        self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
 
     def open_spider(self, spider):
         self._connect_db()
@@ -62,25 +65,21 @@ class AutoDBPipeline(object):
         self.db.create_tables(self.l_models.values(), safe=True)
 
     def close_spider(self, spider):
-        self._insert_db()
         self.db.close()
+        self.db_pool.close()
 
     def process_item(self, item, spider):
+        self.db_pool.runInteraction(self._insert_db, item).addErrback(self.handle_error, item, spider)
+        return item
+
+    def _insert_db(self, cursor, item):
         item_name = item.__class__.__name__
         model = self.l_models[item_name]
         constraints = self.d_constraints[item_name]
-
         d = dict(item)
         d["modify_date"] = datetime.now()
-        sql = model.insert(**d).on_conflict(conflict_target=constraints, preserve=tuple(d)).sql()
-        self.bulk.append(sql)
-        if len(self.bulk) > self.max_bulk_size:
-            self._insert_db()
-        return item
+        sql = model.insert(**d).on_conflict(conflict_target=constraints, preserve=list(d)).sql()
+        cursor.execute(*sql)
 
-    def _insert_db(self):
-        for sql_t in self.bulk:
-            self.db.execute_sql(*sql_t, commit=False)
-        self.db.commit()
-        logging.debug("{} Item(s) Inserted".format(len(self.bulk)))
-        self.bulk[:] = []
+    def handle_error(self, failure, item, spider):
+        logging.log(logging.WARNING, f"Spider:{spider} Failure:{failure} Item:{item}")

@@ -12,5 +12,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=["peewee"],
+    install_requires=["peewee", "twisted", ],
 )

@@ -34,17 +34,15 @@ class AutoDBPipeline(object):
         if db_engine.lower() == "sqlite":
             adapter = self.db_settings.get("adapter", "sqlite3")
             self.db = peewee.SqliteDatabase(**db_params)
-            self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
         elif db_engine.lower() == "mysql":
             adapter = self.db_settings.get("adapter", "pymysql")
             self.db = peewee.MySQLDatabase(**db_params)
-            self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
         elif db_engine.lower() == "postgresql":
             adapter = self.db_settings.get("adapter", "psycopg2")
             self.db = peewee.PostgresqlDatabase(**db_params)
-            self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
         else:
             raise ValueError("DATABASE engine is not supported")
+        self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
 
     def open_spider(self, spider):
         self._connect_db()
@@ -80,7 +78,8 @@ class AutoDBPipeline(object):
         constraints = self.d_constraints[item_name]
         d = dict(item)
         d["modify_date"] = datetime.now()
-        model.insert(**d).on_conflict(conflict_target=constraints, preserve=list(d)).execute(cursor)
+        sql = model.insert(**d).on_conflict(conflict_target=constraints, preserve=list(d)).sql()
+        cursor.execute(*sql)
 
     def handle_error(self, failure, item, spider):
         logging.log(logging.WARNING, f"Spider:{spider} Failure:{failure} Item:{item}")

@@ -1,10 +1,7 @@
 from collections import OrderedDict
-from abc import ABCMeta
 import itertools
-
-import scrapy
 import six
-from scrapy.item import DictItem
+from scrapy import item
 
 
 class Field(dict):
@@ -15,7 +12,7 @@ class Field(dict):
         self.count = next(Field._counter)
 
 
-class ItemMeta(scrapy.item.ItemMeta):
+class ItemMeta(item.ItemMeta):
     def __new__(mcs, class_name, bases, attrs):
         new_bases = tuple(base._class for base in bases if hasattr(base, '_class'))
         _class = super(ItemMeta, mcs).__new__(mcs, 'x_' + class_name, new_bases, attrs)
@@ -47,5 +44,5 @@ class ItemMeta(scrapy.item.ItemMeta):
 
 
 @six.add_metaclass(ItemMeta)
-class OrderedItem(DictItem):
+class OrderedItem(item.DictItem):
     pass

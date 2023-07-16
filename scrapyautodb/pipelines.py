@@ -30,6 +30,7 @@ class AutoDBPipeline(object):
         if self.db_settings is None:
             raise ValueError("DATABASE is not set")
         db_params = self.db_settings.get("params")
+        cp_params = self.db_settings.get("cp_params", {})
         db_engine = self.db_settings.get("engine")
         if db_engine.lower() == "sqlite":
             adapter = self.db_settings.get("adapter", "sqlite3")
@@ -42,7 +43,7 @@ class AutoDBPipeline(object):
             self.db = peewee.PostgresqlDatabase(**db_params)
         else:
             raise ValueError("DATABASE engine is not supported")
-        self.db_pool = adbapi.ConnectionPool(adapter, **db_params)
+        self.db_pool = adbapi.ConnectionPool(adapter, **db_params, **cp_params)
 
     def open_spider(self, spider):
         self._connect_db()
